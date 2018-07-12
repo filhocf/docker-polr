@@ -2,31 +2,19 @@ version: '3.5'
 
 services:
     polr:
-        image: ajanvier/polr
-        container_name: polr
+        image: kelvinneves/docker-polr
+        container_name: polrlink
         ports:
             - "80:80"
-        environment:
-            - DB_HOST=${DB_HOST}
-            - DB_DATABASE=${DB_DATABASE}
-            - DB_USERNAME=${DB_USERNAME}
-            - DB_PASSWORD=${DB_PASSWORD}
-            - ADMIN_USERNAME=${ADMIN_USERNAME}
-            - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-            - ADMIN_EMAIL=${ADMIN_EMAIL}
-        depends_on:
-            - mariadb
 
     mariadb:
         image: mariadb
-        container_name: mariadb
+        container_name: mariabanco
         restart: always
-        expose:
-          - "3306"
         environment:
-          - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-          - MYSQL_DATABASE=${DB_DATABASE}
-          - MYSQL_USER=${DB_USERNAME}
-          - MYSQL_PASSWORD=${DB_PASSWORD}
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_DATABASE=polr
+          - MYSQL_USER=polr_admin
+          - MYSQL_PASSWORD=polr_admin
         volumes:
           - /var/lib/mysql
