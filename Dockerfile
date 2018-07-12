@@ -5,7 +5,7 @@ LABEL Maintainer="Aurélien JANVIER <dev@ajanvier.fr>" \
       Description="Unofficial Docker image for Polr."
 
 # Install packages
-RUN apk update && apk --no-cache add gettext git php7 php7-fpm php7-pdo php7-mysqli php7-json php7-openssl php7-curl \
+RUN apk --no-cache add gettext git php7 php7-fpm php7-pdo php7-mysqli php7-json php7-openssl php7-curl \
     php7-zlib php7-xml php7-phar php7-intl php7-dom php7-xmlreader php7-ctype \
     php7-mbstring php7-gd php7-xmlwriter php7-tokenizer php7-pdo_mysql php7-memcached nginx supervisor curl
 
@@ -24,7 +24,7 @@ COPY start.sh /start.sh
 RUN chmod u+x /start.sh
 
 # Install composer
-RUN curl -sS https://getcomposer.org/installer \
+RUN curl https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Pull application
@@ -44,11 +44,9 @@ RUN mkdir -p storage/logs && \
 # Copy env file and setup values
 RUN cp .env.setup .env && \ 
 	chmod -R 755 . && \
-	chown -R nginx .
-
+	chown -R nobody .
 
 # Removing now useless dependency
 RUN apk del git
 
-EXPOSE 80
 ENTRYPOINT ["/start.sh"]
