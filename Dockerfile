@@ -13,7 +13,7 @@ ENV DB_USERNAME polr
 ENV POLR_BASE 62
 
 # Install packages
-RUN apk --no-cache add gettext git php7 php7-fpm php7-pdo php7-mysqli php7-json php7-openssl php7-curl \
+RUN apk update && apk --no-cache add gettext git php7 php7-fpm php7-pdo php7-mysqli php7-json php7-openssl php7-curl \
     php7-zlib php7-xml php7-phar php7-intl php7-dom php7-xmlreader php7-ctype \
     php7-mbstring php7-gd php7-xmlwriter php7-tokenizer php7-pdo_mysql php7-memcached nginx supervisor curl
 
@@ -50,10 +50,7 @@ RUN mkdir -p storage/logs && \
     chmod -R go+w storage
 
 # Copy env file and setup values
-COPY config/.env_polr .env_polr
-
-# Copy admin seeder
-COPY seeders/AdminSeeder.php AdminSeeder_withoutEnv.php
+RUN cp .env.setup .env
 
 # Removing now useless dependency
 RUN apk del git
