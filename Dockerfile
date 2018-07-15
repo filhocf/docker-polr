@@ -1,13 +1,33 @@
 # Forked from TrafeX/docker-php-nginx (https://github.com/TrafeX/docker-php-nginx/)
 
 FROM alpine:latest
-LABEL Maintainer="Aurélien JANVIER <dev@ajanvier.fr>" \
+LABEL Maintainer="Kelvin Neves <> & Claudio Ferreira <filhocf@gmail.com>" \
       Description="Unofficial Docker image for Polr."
 
 # Install packages
-RUN apk --no-cache add gettext git php7 php7-fpm php7-pdo php7-mysqli php7-json php7-openssl php7-curl \
+RUN apk --no-cache add gettext php7 php7-fpm php7-pdo php7-mysqli php7-json php7-openssl php7-curl \
     php7-zlib php7-xml php7-phar php7-intl php7-dom php7-xmlreader php7-ctype \
     php7-mbstring php7-gd php7-xmlwriter php7-tokenizer php7-pdo_mysql php7-memcached nginx supervisor curl
+
+# Install composer
+RUN curl https://getcomposer.org/installer \
+    | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Pull application
+RUN cd /var/www; \
+    mkdir polr; \
+    curl -L https://github.com/cydrobolt/polr/archive/master.tar.gz | \
+    tar xz --strip-components=1 -C polr
+
+WORKDIR /var/www/polr
+
+# Install dependencies
+RUN composer install --no-dev -o
+
+# Setting logs permissions
+RUN mkdir -p storage/logs && \
+    touch storage/logs/lumen.log && \
+    chmod -R go+w storage
 
 # Configure nginx
 COPY config/nginx.conf /etc/nginx/nginx.conf
@@ -20,33 +40,6 @@ COPY config/php.ini /etc/php7/conf.d/zzz_custom.ini
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Copy start.sh script
-COPY start.sh /start.sh
-RUN chmod u+x /start.sh
+COPY entrypoint.sh /entrypoint.sh
 
-# Install composer
-RUN curl https://getcomposer.org/installer \
-    | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Pull application
-RUN mkdir -p /src && \
-    git clone https://github.com/cydrobolt/polr.git /src
-
-WORKDIR /src
-
-# Install dependencies
-RUN composer install --no-dev -o
-
-# Setting logs permissions
-RUN mkdir -p storage/logs && \
-    touch storage/logs/lumen.log && \
-    chmod -R go+w storage
-
-# Copy env file and setup values
-RUN cp .env.setup .env && \ 
-	chmod -R 755 . && \
-	chown -R nobody .
-
-# Removing now useless dependency
-RUN apk del git
-
-ENTRYPOINT ["/start.sh"]
+ENTRYPOINT ["/entrypoint.sh"]

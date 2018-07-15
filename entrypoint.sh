@@ -1,6 +1,7 @@
 #!/bin/sh
 
-cd /src
+cd /var/www/polr
+
 if [ ! -f ".env" ]; then
     POLR_GENERATED_AT=`date +"%B %d, %Y"`
     export POLR_GENERATED_AT
